@@ -3,6 +3,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './infrastructure/database/database.module';
+import { AuthModule } from './infrastructure/auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -10,6 +11,7 @@ import { DatabaseModule } from './infrastructure/database/database.module';
       envFilePath: '.env',
     }),
     DatabaseModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

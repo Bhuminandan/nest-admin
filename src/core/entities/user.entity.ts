@@ -28,11 +28,11 @@ export class User {
   @Column({ default: false })
   isVerified: boolean;
 
-  @Column({ nullable: true })
-  passwordResetToken: string;
+  @Column({ type: 'varchar', nullable: true })
+  passwordResetToken: string | null;
 
-  @Column({ nullable: true })
-  passwordResetExpires: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetExpires: Date | null;
 
   @ManyToOne(() => Group, (group) => group.users)
   group: Group;

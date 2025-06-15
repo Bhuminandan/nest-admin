@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Post, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GroupService } from "../services/group.service";
 import { CreateGroupDto } from "src/application/dto/group.dto";
@@ -28,6 +28,22 @@ export class GroupController {
     try {
       const result = await this.gruopService.createGroup(createGroupDto);
       return res.status(HttpStatus.CREATED).json(result);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Get group by id' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Group found successfully' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+  async getGroupById(@Req() req, @Res() res: Response) {
+    try {
+      const result = await this.gruopService.getGroupById(req.params.id, req.user.id);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       throw error;
     }

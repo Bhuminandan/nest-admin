@@ -33,4 +33,14 @@ export class GroupService implements IGroupService {
 
     return await this.groupRepository.save(createdGroup);
   }
+
+  async getGroupById(groupId : string, adminId : string) {
+    const group = await this.groupRepository.findOne({
+        where : {
+            id : groupId,
+            adminId : adminId
+        }
+    });
+    return group;
+  }
 }

@@ -60,8 +60,6 @@ export class AuthService implements IAuthService {
       where: { email: registerUserDto.email },
     });
 
-    console.log("existingUser", existingUser)
-
     if (existingUser) {
       throw new BadRequestException('Email already exists');
     }

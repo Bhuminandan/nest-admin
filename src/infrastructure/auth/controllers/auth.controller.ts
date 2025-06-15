@@ -6,19 +6,19 @@ import {
   HttpStatus,
   UseGuards,
   Req,
-  Get,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../../../application/dto/login.dto';
-import { RegisterUserDto } from '../../../application/dto/register.dto';
+import { RegisterAdminDto, RegisterUserDto } from '../../../application/dto/register.dto';
 import { RequestPasswordResetDto } from '../../../application/dto/request-password-reset.dto';
 import { ResetPasswordDto } from '../../../application/dto/reset-password.dto';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { Roles } from '../decorators/roles.decorator';
-import { UserRole } from '../../../core/enums/user-role.enum';
 import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Roles } from '../decorators/roles.decorator';
+import { UserRole } from 'src/core/enums/user-role.enum';
+import { RolesGuard } from '../guards/roles.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -37,19 +37,43 @@ export class AuthController {
   }
 
   @Post('register')
-  // @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Register new user (Admin only)' })
   @ApiBody({ type: RegisterUserDto })
-  @ApiResponse({ status: 201, description: 'User registered successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'User registered successfully' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
   async register(
     @Body() registerUserDto: RegisterUserDto,
     @Res() res: Response,
   ) {
-    const result = await this.authService.registerUser(registerUserDto);
-    return res.status(HttpStatus.CREATED).json(result);
+    try {
+      const result = await this.authService.registerUser(registerUserDto);
+      return res.status(HttpStatus.CREATED).json(result);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post('register-admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Register new Admin (Super Admin only)' })
+  @ApiBody({ type: RegisterAdminDto })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Admin registered successfully' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
+  async registerAdmin(
+    @Body() registerAdminDto: RegisterAdminDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.authService.registerAdmin(registerAdminDto);
+      return res.status(HttpStatus.CREATED).json(result);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Post('request-password-reset')

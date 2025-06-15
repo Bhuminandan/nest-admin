@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DataSource } from 'typeorm';
+import { User } from './core/entities/user.entity';
+import { seedSuperAdmin } from './infrastructure/database/seeders/superadmin.seeder';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +19,9 @@ async function bootstrap() {
   console.log(JSON.stringify(document, null, 2));
 
   SwaggerModule.setup('api-docs', app, document);
+
+  const userRepo = app.get(DataSource).getRepository(User);
+  await seedSuperAdmin(userRepo);
 
   await app.listen(3000);
 }

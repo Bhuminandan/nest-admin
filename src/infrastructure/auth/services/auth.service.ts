@@ -7,12 +7,13 @@ import { JwtService } from '@nestjs/jwt';
 import { IAuthService } from '../../../core/interfaces/auth-service.interface';
 import { User } from '../../../core/entities/user.entity';
 import { UserRepository } from '../../database/repositories/user-repository';
-import { RegisterUserDto } from '../../../application/dto/register.dto';
+import { RegisterAdminDto, RegisterUserDto } from '../../../application/dto/register.dto';
 import { EmailService } from './email.service';
 import * as bcrypt from 'bcrypt';
 import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { UserRole } from 'src/core/enums/user-role.enum';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -59,6 +60,8 @@ export class AuthService implements IAuthService {
       where: { email: registerUserDto.email },
     });
 
+    console.log("existingUser", existingUser)
+
     if (existingUser) {
       throw new BadRequestException('Email already exists');
     }
@@ -88,6 +91,24 @@ export class AuthService implements IAuthService {
 
     const { password, passwordResetToken, ...safeUser } = newUser;
     return safeUser;
+  }
+
+  async registerAdmin(registerAdminDto: RegisterAdminDto): Promise<User> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: registerAdminDto.email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('Email already exists with role ' + existingUser.role);
+    }
+    const hashedPassword = await bcrypt.hash(registerAdminDto.password, 10);
+    const user = this.userRepository.create({
+      ...registerAdminDto,
+      password: hashedPassword,
+      role: UserRole.ADMIN,
+      isVerified: true,
+    });
+    return this.userRepository.save(user);
   }
 
   async requestPasswordReset(email: string): Promise<void> {

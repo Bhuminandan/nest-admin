@@ -1,21 +1,32 @@
-import { IsEmail, IsNotEmpty, IsEnum } from 'class-validator';
-import { UserRole } from './../../core/enums/user-role.enum';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterUserDto {
-  @ApiProperty()
-  @IsEmail()
+  @ApiProperty({
+    example: 'user@example.com',
+    description: 'Email address for registration',
+    required: true,
+  })
+  @IsEmail({}, { message: 'Please provide a valid email address' })
+  email: string;
+}
+
+export class RegisterAdminDto {
+  @ApiProperty({
+    example: 'user@example.com',
+    description: 'Email address for registration',
+    required: true,
+  })
+  @IsEmail({}, { message: 'Please provide a valid email address' })
   email: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({
+    example: 'Password123!',
+    description: 'Password for registration',
+    required: true,
+  })
+  @IsString()
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @IsNotEmpty({ message: 'Password cannot be empty' })
   password: string;
-
-  @ApiProperty()
-  @IsEnum(UserRole)
-  role: UserRole;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  groupId?: string; // Required for Admin creating users
 }

@@ -20,7 +20,7 @@ export class Transaction {
   description: string;
 
   @Column({ nullable: true })
-  filePath: string; // For PDF/file uploads
+  filePath: string;
 
   @ManyToOne(() => User, (user) => user.transactions)
   user: User;

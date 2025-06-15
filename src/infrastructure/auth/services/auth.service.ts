@@ -12,6 +12,7 @@ import { EmailService } from './email.service';
 import * as bcrypt from 'bcrypt';
 import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -20,10 +21,15 @@ export class AuthService implements IAuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { email } });
+
+    if (user && !user.isVerified) {
+      throw new UnauthorizedException('Email not verified');
+    }
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -48,7 +54,7 @@ export class AuthService implements IAuthService {
     };
   }
 
-  async registerUser(registerUserDto: RegisterUserDto): Promise<User> {
+  async registerUser(registerUserDto: RegisterUserDto): Promise<Partial<User>> {
     const existingUser = await this.userRepository.findOne({
       where: { email: registerUserDto.email },
     });
@@ -59,17 +65,29 @@ export class AuthService implements IAuthService {
 
     const tempPassword = this.generateRandomPassword();
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    const jwtExpiry = this.getJwtExpiry();
+
+    const token = this.jwtService.sign(
+      {
+        sub: registerUserDto.email,
+        purpose: 'reset-password',
+      },
+      { expiresIn: jwtExpiry },
+    );
 
     const newUser = this.userRepository.create({
       ...registerUserDto,
       password: hashedPassword,
       isVerified: false,
+      passwordResetToken: token,
+      passwordResetExpires: new Date(Date.now() + jwtExpiry),
     });
-
     await this.userRepository.save(newUser);
-    await this.emailService.sendWelcomeEmail(newUser.email, tempPassword);
 
-    return newUser;
+    await this.emailService.sendWelcomeEmail(newUser.email, token);
+
+    const { password, passwordResetToken, ...safeUser } = newUser;
+    return safeUser;
   }
 
   async requestPasswordReset(email: string): Promise<void> {
@@ -93,16 +111,20 @@ export class AuthService implements IAuthService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    let payload;
+    let payload: any;
     try {
       payload = this.jwtService.verify(token);
+
+      if (!payload?.sub || payload.purpose !== 'reset-password') {
+        throw new BadRequestException('Invalid or expired token');
+      }
     } catch (err) {
       throw new BadRequestException('Invalid or expired token');
     }
 
     const user = await this.userRepository.findOne({
       where: {
-        id: payload.sub,
+        email: payload.sub,
         passwordResetToken: token,
         passwordResetExpires: MoreThan(new Date()),
       },
@@ -113,6 +135,7 @@ export class AuthService implements IAuthService {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
+
     await this.userRepository.update(user.id, {
       password: hashedPassword,
       passwordResetToken: null,
@@ -133,5 +156,9 @@ export class AuthService implements IAuthService {
     }
 
     return result;
+  }
+
+  private getJwtExpiry() {
+    return parseInt(this.configService.get('JWT_RESET_PASS_EXP') || '360000');
   }
 }

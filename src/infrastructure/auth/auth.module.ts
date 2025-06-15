@@ -8,6 +8,10 @@ import { AuthService } from './services/auth.service';
 import { EmailService } from './services/email.service';
 import { UserRepository } from '../database/repositories/user-repository';
 import { AuthController } from './controllers/auth.controller';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { LocalStrategy } from './strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -40,7 +44,15 @@ import { AuthController } from './controllers/auth.controller';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, EmailService, UserRepository],
+  providers: [
+    AuthService,
+    EmailService,
+    UserRepository,
+    LocalAuthGuard,
+    LocalStrategy,
+    JwtAuthGuard,
+    JwtStrategy,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { AuthModule } from './infrastructure/auth/auth.module';
+import { GroupModule } from './infrastructure/group/group.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -12,6 +13,7 @@ import { AuthModule } from './infrastructure/auth/auth.module';
     }),
     DatabaseModule,
     AuthModule,
+    GroupModule
   ],
   controllers: [],
   providers: [],

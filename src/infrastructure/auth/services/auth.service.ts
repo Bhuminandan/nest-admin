@@ -6,11 +6,10 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { IAuthService } from '../../../core/interfaces/auth-service.interface';
 import { User } from '../../../core/entities/user.entity';
-import { UserRepository } from '../../database/repositories/user-repository';
 import { RegisterAdminDto, RegisterUserDto } from '../../../application/dto/register.dto';
 import { EmailService } from './email.service';
 import * as bcrypt from 'bcrypt';
-import { MoreThan, Repository } from 'typeorm';
+import { FindOneOptions, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { UserRole } from 'src/core/enums/user-role.enum';
@@ -43,6 +42,7 @@ export class AuthService implements IAuthService {
 
     return user;
   }
+
 
   async login(user: User): Promise<{ accessToken: string }> {
     const payload = {
@@ -161,6 +161,10 @@ export class AuthService implements IAuthService {
       passwordResetExpires: null,
       isVerified: true,
     });
+  }
+
+  async findById(options: FindOneOptions<User>): Promise<User | null> {
+    return this.userRepository.findOne(options);
   }
 
   private generateRandomPassword(length = 12): string {

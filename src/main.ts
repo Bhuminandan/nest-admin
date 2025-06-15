@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
 import { User } from './core/entities/user.entity';
 import { seedSuperAdmin } from './infrastructure/database/seeders/superadmin.seeder';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,14 @@ async function bootstrap() {
 
   const userRepo = app.get(DataSource).getRepository(User);
   await seedSuperAdmin(userRepo);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,         
+      forbidNonWhitelisted: true,
+      transform: true,       
+    }),
+  );
 
   await app.listen(3000);
 }

@@ -1,5 +1,6 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from 'src/core/enums/user-role.enum';
 
 export class RegisterUserDto {
   @ApiProperty({
@@ -9,6 +10,15 @@ export class RegisterUserDto {
   })
   @IsEmail({}, { message: 'Please provide a valid email address' })
   email: string;
+
+  @ApiProperty({
+    example: UserRole.POWER_USER,
+    description: 'Role for registration',
+    required: true,
+    enum: [UserRole.POWER_USER, UserRole.USER],
+  })
+  @IsEnum([UserRole.POWER_USER, UserRole.USER], { message: 'Role must be a valid enum value' })
+  role: UserRole;
 }
 
 export class RegisterAdminDto {

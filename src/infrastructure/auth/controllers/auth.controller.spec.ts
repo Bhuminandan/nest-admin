@@ -98,7 +98,11 @@ describe('AuthController', () => {
 
       expect(mockAuthService.login).toHaveBeenCalledWith(mockUser);
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(mockResponse.json).toHaveBeenCalledWith(mockToken);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.OK,
+        message: 'Login successful',
+        data: mockToken,
+      });
     });
 
     it('should use LocalAuthGuard', () => {

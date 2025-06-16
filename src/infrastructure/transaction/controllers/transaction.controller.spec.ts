@@ -152,7 +152,11 @@ describe('TransactionController', () => {
         'roles',
         TransactionController.prototype.getAllTransactionsByUser,
       );
-      expect(roles).toEqual([UserRole.POWER_USER, UserRole.USER]);
+      expect(roles).toEqual([
+        UserRole.POWER_USER,
+        UserRole.USER,
+        UserRole.POWER_USER,
+      ]);
     });
   });
 
@@ -191,7 +195,11 @@ describe('TransactionController', () => {
         'roles',
         TransactionController.prototype.getTransactionById,
       );
-      expect(roles).toEqual([UserRole.USER]);
+      expect(roles).toEqual([
+        UserRole.USER,
+        UserRole.POWER_USER,
+        UserRole.SUPPORT_DESK,
+      ]);
     });
   });
 

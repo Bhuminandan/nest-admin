@@ -60,7 +60,11 @@ describe('GroupController', () => {
 
       expect(groupService.createGroup).toHaveBeenCalledWith(createGroupDto);
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.CREATED);
-      expect(mockResponse.json).toHaveBeenCalledWith(expectedResult);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.CREATED,
+        message: 'Group created successfully',
+        data: expectedResult,
+      });
     });
 
     it('should throw an error when service fails', async () => {
@@ -96,7 +100,11 @@ describe('GroupController', () => {
 
       expect(groupService.getGroupById).toHaveBeenCalledWith('1', 'user1');
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(mockResponse.json).toHaveBeenCalledWith(expectedResult);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.OK,
+        message: 'Group found successfully',
+        data: expectedResult,
+      });
     });
 
     it('should throw an error when service fails', async () => {
@@ -116,26 +124,38 @@ describe('GroupController', () => {
 
   describe('Guards and Decorators', () => {
     it('should have JwtAuthGuard and RolesGuard for createGroup', () => {
-      const guards = Reflect.getMetadata('__guards__', GroupController.prototype.createGroup);
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        GroupController.prototype.createGroup,
+      );
       expect(guards).toHaveLength(2);
       expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
       expect(new guards[1]()).toBeInstanceOf(RolesGuard);
     });
 
     it('should have SUPER_ADMIN role required for createGroup', () => {
-      const roles = Reflect.getMetadata('roles', GroupController.prototype.createGroup);
+      const roles = Reflect.getMetadata(
+        'roles',
+        GroupController.prototype.createGroup,
+      );
       expect(roles).toEqual([UserRole.SUPER_ADMIN]);
     });
 
     it('should have JwtAuthGuard and RolesGuard for getGroupById', () => {
-      const guards = Reflect.getMetadata('__guards__', GroupController.prototype.getGroupById);
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        GroupController.prototype.getGroupById,
+      );
       expect(guards).toHaveLength(2);
       expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
       expect(new guards[1]()).toBeInstanceOf(RolesGuard);
     });
 
     it('should have ADMIN role required for getGroupById', () => {
-      const roles = Reflect.getMetadata('roles', GroupController.prototype.getGroupById);
+      const roles = Reflect.getMetadata(
+        'roles',
+        GroupController.prototype.getGroupById,
+      );
       expect(roles).toEqual([UserRole.ADMIN]);
     });
   });

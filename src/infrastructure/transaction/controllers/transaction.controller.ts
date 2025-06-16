@@ -101,8 +101,8 @@ export class TransactionController {
     status: HttpStatus.FORBIDDEN,
     description: 'Forbidden',
   })
-  async getFile(@Query('filePath') filePath: string) {
-    const file = await this.transactionService.getFile(filePath);
+  async getFile(@Query('fileName') fileName: string) {
+    const file = await this.transactionService.getFile(fileName);
     return {
       statusCode: HttpStatus.OK,
       message: 'File found successfully',
@@ -112,8 +112,8 @@ export class TransactionController {
 
   @Get('/getAllTransactionsByUser')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.POWER_USER, UserRole.USER)
-  @ApiOperation({ summary: 'Get all transactions by user (Power user only)' })
+  @Roles(UserRole.POWER_USER, UserRole.USER, UserRole.POWER_USER)
+  @ApiOperation({ summary: 'Get all transactions by user' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Transactions found successfully',
@@ -143,38 +143,12 @@ export class TransactionController {
     };
   }
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.USER)
-  @ApiOperation({ summary: 'Get a transaction by id (User only)' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Transaction found successfully',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Bad request',
-  })
-  @ApiResponse({
-    status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden',
-  })
-  async getTransactionById(@Req() req: any) {
-    const transaction = await this.transactionService.getTransactionById(
-      req.params.id,
-      req.user.id,
-    );
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Transaction found successfully',
-      data: transaction,
-    };
-  }
-
-  @Get()
+  @Get('/getall')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.POWER_USER, UserRole.SUPPORT_DESK)
-  @ApiOperation({ summary: 'Get all transactions (Power user only)' })
+  @ApiOperation({
+    summary: 'Get all transactions (Power user and Support desk only)',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Transactions found successfully',
@@ -200,6 +174,34 @@ export class TransactionController {
       statusCode: HttpStatus.OK,
       message: 'Transactions found successfully',
       data: transactions,
+    };
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.USER, UserRole.POWER_USER, UserRole.SUPPORT_DESK)
+  @ApiOperation({ summary: 'Get a transaction by id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Transaction found successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden',
+  })
+  async getTransactionById(@Req() req: any) {
+    const transaction = await this.transactionService.getTransactionById(
+      req.params.id,
+      req.user.id,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Transaction found successfully',
+      data: transaction,
     };
   }
 

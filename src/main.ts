@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 import { User } from './core/entities/user.entity';
 import { seedSuperAdmin } from './infrastructure/database/seeders/superadmin.seeder';
 import { ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from '@core/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,11 +27,13 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,         
+      whitelist: true,
       forbidNonWhitelisted: true,
-      transform: true,       
+      transform: true,
     }),
   );
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   await app.listen(3000);
 }

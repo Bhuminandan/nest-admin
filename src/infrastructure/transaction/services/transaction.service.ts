@@ -101,8 +101,8 @@ export class TransactionService implements ITransactionService {
     await this.transactionRepository.remove(transaction);
   }
 
-  async getFile(filePath: string) {
-    const fullPath = process.cwd() + '/uploads/' + filePath;
+  async getFile(fileName: string) {
+    const fullPath = process.cwd() + '/uploads/' + fileName;
     if (!fs.existsSync(fullPath)) {
       throw new BadRequestException('File not found');
     }

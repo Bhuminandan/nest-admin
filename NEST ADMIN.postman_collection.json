@@ -1,0 +1,495 @@
+{
+	"info": {
+		"_postman_id": "bfa88e1d-9136-4128-976c-6e868ae39e00",
+		"name": "NEST ADMIN",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "29909661"
+	},
+	"item": [
+		{
+			"name": "AUTH",
+			"item": [
+				{
+					"name": "SUPER ADMIN ROTUES",
+					"item": [
+						{
+							"name": "GROUP",
+							"item": [
+								{
+									"name": "GROUP CREATION",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN1cGVyQGFkbWluLmNvbSIsInN1YiI6IjQxNjgzZWI1LTI2NjEtNDU1My1iY2MxLTk0YmEwNGNjNDRlZiIsInJvbGUiOiJTVVBFUl9BRE1JTiIsImlhdCI6MTc1MDA2MzMxMiwiZXhwIjoxNzUwMDY0MjEyfQ.MXFxfpLXmAqXeL7ilB0_yBucpKboo2u2t9azIi0d-q0"
+											}
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\" : \"Test Group\",\n    \"adminId\" : \"04edc231-74ac-4060-be2a-05147c996cba\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "http://localhost:3000/group"
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "SUPER ADMIN LOGIN",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\" : \"super@admin.com\",\r\n    \"password\" : \"Admin@123\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:3000/auth/login"
+							},
+							"response": []
+						},
+						{
+							"name": "REGISTER ADMIN",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": {
+										"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN1cGVyQGFkbWluLmNvbSIsInN1YiI6IjQxNjgzZWI1LTI2NjEtNDU1My1iY2MxLTk0YmEwNGNjNDRlZiIsInJvbGUiOiJTVVBFUl9BRE1JTiIsImlhdCI6MTc1MDA2MzMxMiwiZXhwIjoxNzUwMDY0MjEyfQ.MXFxfpLXmAqXeL7ilB0_yBucpKboo2u2t9azIi0d-q0"
+									}
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\" : \"admin@gmail.com\",\n    \"password\" : \"Admin@123\"\n}   ",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:3000/auth/register-admin"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ADMIN ROUTES",
+					"item": [
+						{
+							"name": "GROUP",
+							"item": [
+								{
+									"name": "GET GROUP BY ID",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6IjA0ZWRjMjMxLTc0YWMtNDA2MC1iZTJhLTA1MTQ3Yzk5NmNiYSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1MDA2MzU5NSwiZXhwIjoxNzUwMDY0NDk1fQ.ozfnTr0YjfXH0234Tb0Be1cUNrx4gAOTyNToT_jr1DY"
+											}
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "http://localhost:3000/group/bdf3c29a-2506-49f5-846f-9cd07e07758f"
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "ADMIN LOGIN",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\" : \"admin@gmail.com\",\r\n    \"password\" : \"Admin@123\"\r\n}   ",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:3000/auth/login"
+							},
+							"response": []
+						},
+						{
+							"name": "REGISTER POWER USERS & USERS",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": {
+										"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6IjA0ZWRjMjMxLTc0YWMtNDA2MC1iZTJhLTA1MTQ3Yzk5NmNiYSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1MDA2MzU5NSwiZXhwIjoxNzUwMDY0NDk1fQ.ozfnTr0YjfXH0234Tb0Be1cUNrx4gAOTyNToT_jr1DY"
+									}
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\" : \"mbhumitwo9545@gmail.com\",\n    \"role\" : \"POWER_USER\"\n}   ",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:3000/auth/register"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "POWER USER ROTUES",
+					"item": [
+						{
+							"name": "TRANSACTION CREATION & FILE UPLOAD",
+							"item": [
+								{
+									"name": "TRANSACTION CREATION",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1iaHVtaW9uZTk1NDVAZ21haWwuY29tIiwic3ViIjoiNzBmNjJjYmMtNTNjMi00YWIxLTg5OGYtZTJlNDZhMDA5MDJmIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NTAwNjQyOTUsImV4cCI6MTc1MDA2NTE5NX0.3UXVbBkMGHKCuou7yLjbpSJpzunkn6Flk6etnwjLsJ8"
+											}
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "title",
+													"value": "Test",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "Testing description",
+													"type": "text"
+												},
+												{
+													"key": "file",
+													"type": "file",
+													"src": "postman-cloud:///1ef2f923-f42d-4550-90c9-a2159ef093d5"
+												}
+											]
+										},
+										"url": "http://localhost:3000/transaction"
+									},
+									"response": []
+								},
+								{
+									"name": "UPDATE TRANSACTION",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1iaHVtaW9uZTk1NDVAZ21haWwuY29tIiwic3ViIjoiNzBmNjJjYmMtNTNjMi00YWIxLTg5OGYtZTJlNDZhMDA5MDJmIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NTAwNjQyOTUsImV4cCI6MTc1MDA2NTE5NX0.3UXVbBkMGHKCuou7yLjbpSJpzunkn6Flk6etnwjLsJ8"
+											}
+										},
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "title",
+													"value": "Test",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "Testing description",
+													"type": "text"
+												},
+												{
+													"key": "file",
+													"type": "file",
+													"src": "postman-cloud:///1ef053d7-e55f-4080-91c8-9c279951b8ff"
+												}
+											]
+										},
+										"url": "http://localhost:3000/transaction/1670c0b1-e154-4d76-8f9a-b07ad34517bb"
+									},
+									"response": []
+								},
+								{
+									"name": "DELETE TRANSACTION",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1iaHVtaW9uZTk1NDVAZ21haWwuY29tIiwic3ViIjoiNzBmNjJjYmMtNTNjMi00YWIxLTg5OGYtZTJlNDZhMDA5MDJmIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NTAwNjQ2NDcsImV4cCI6MTc1MDA2NTU0N30.klyouSr1QTSVUS7HgibnhGnWQFExuEbRUkU3OzgNcnA"
+											}
+										},
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "title",
+													"value": "Test",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "Testing description",
+													"type": "text"
+												},
+												{
+													"key": "file",
+													"type": "file",
+													"src": "postman-cloud:///1ef2f923-f42d-4550-90c9-a2159ef093d5"
+												}
+											]
+										},
+										"url": "http://localhost:3000/transaction/38b84d51-fa1a-47e7-ac9c-283fc31d1713"
+									},
+									"response": []
+								},
+								{
+									"name": "GET TRANSACTION BY ID",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1iaHVtaW9uZTk1NDVAZ21haWwuY29tIiwic3ViIjoiNzBmNjJjYmMtNTNjMi00YWIxLTg5OGYtZTJlNDZhMDA5MDJmIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NTAwNjQyOTUsImV4cCI6MTc1MDA2NTE5NX0.3UXVbBkMGHKCuou7yLjbpSJpzunkn6Flk6etnwjLsJ8"
+											}
+										},
+										"method": "GET",
+										"header": [],
+										"url": "http://localhost:3000/transaction/2449d055-12ee-4b2b-ae16-eb2fb5c78acc"
+									},
+									"response": []
+								},
+								{
+									"name": "GET MY TRANSACTIONS",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1iaHVtaW9uZTk1NDVAZ21haWwuY29tIiwic3ViIjoiNzBmNjJjYmMtNTNjMi00YWIxLTg5OGYtZTJlNDZhMDA5MDJmIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NTAwNjQ2NDcsImV4cCI6MTc1MDA2NTU0N30.klyouSr1QTSVUS7HgibnhGnWQFExuEbRUkU3OzgNcnA"
+											}
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:3000/transaction/getAllTransactionsByUser?page=1&limit=10",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "3000",
+											"path": [
+												"transaction",
+												"getAllTransactionsByUser"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1"
+												},
+												{
+													"key": "limit",
+													"value": "10"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET ALL TRANSACTIONS",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1iaHVtaW9uZTk1NDVAZ21haWwuY29tIiwic3ViIjoiNzBmNjJjYmMtNTNjMi00YWIxLTg5OGYtZTJlNDZhMDA5MDJmIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NTAwNjQ2NDcsImV4cCI6MTc1MDA2NTU0N30.klyouSr1QTSVUS7HgibnhGnWQFExuEbRUkU3OzgNcnA"
+											}
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:3000/transaction/getAllTransactionsByUser?page=1&limit=10",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "3000",
+											"path": [
+												"transaction",
+												"getAllTransactionsByUser"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1"
+												},
+												{
+													"key": "limit",
+													"value": "10"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET FILE",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": {
+												"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1iaHVtaW9uZTk1NDVAZ21haWwuY29tIiwic3ViIjoiNzBmNjJjYmMtNTNjMi00YWIxLTg5OGYtZTJlNDZhMDA5MDJmIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NTAwNjQyOTUsImV4cCI6MTc1MDA2NTE5NX0.3UXVbBkMGHKCuou7yLjbpSJpzunkn6Flk6etnwjLsJ8"
+											}
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"email\" : \"mbhumione9545@gmail.com\",\r\n    \"password\" : \"Admin@123\"\r\n}   "
+										},
+										"url": {
+											"raw": "http://localhost:3000/transaction/getFile?fileName=1750064359112-Verification Docs.pdf",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "3000",
+											"path": [
+												"transaction",
+												"getFile"
+											],
+											"query": [
+												{
+													"key": "fileName",
+													"value": "1750064359112-Verification Docs.pdf"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "POWERUSER & USER LOGIN",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\" : \"mbhumione9545@gmail.com\",\r\n    \"password\" : \"Admin@123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:3000/auth/login"
+							},
+							"response": []
+						},
+						{
+							"name": "VERIFY EMAIL & RESET USER PASS",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\" : \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYmh1bWlvbmU5NTQ1QGdtYWlsLmNvbSIsInB1cnBvc2UiOiJyZXNldC1wYXNzd29yZCIsImlhdCI6MTc1MDA2Mzk0MiwiZXhwIjoxNzUzNjYzOTQyfQ.McdoIzh8bKOqjiiYDPZ3voT_HT2FReOPh2KxWp1yFrE\",\n    \"newPassword\" : \"Admin@123\",\n    \"confirmPassword\" : \"Admin@123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:3000/auth/reset-password"
+							},
+							"response": []
+						},
+						{
+							"name": "RESENT EMAIL FOR PASS",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\" : \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYmh1bWl0d285NTQ1QGdtYWlsLmNvbSIsInB1cnBvc2UiOiJyZXNldC1wYXNzd29yZCIsImlhdCI6MTc1MDAwMDA3NCwiZXhwIjoxNzUzNjAwMDc0fQ.ZkVHQ1aa3fxgwKu_XL6tPfyFTdBJsaWfQ21icnaENhk\",\n    \"newPassword\" : \"Admin@123\",\n    \"confirmPassword\" : \"Admin@123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:3000/auth/reset-password"
+							},
+							"response": []
+						},
+						{
+							"name": "CREATE SUPPORT USER",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\" : \"support@gmail.com\",\r\n    \"password\" : \"Admin@123\"\r\n}   ",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:3000/auth/support-desk"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:3000/auth/health-check"
+			},
+			"response": []
+		}
+	]
+}

@@ -17,7 +17,7 @@ import { UserRole } from '@core/enums/user-role.enum';
 import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
 import { Response } from 'express';
 
-@ApiTags('Authentication')
+@ApiTags('Group')
 @Controller('group')
 export class GroupController {
   constructor(private readonly gruopService: GroupService) {}

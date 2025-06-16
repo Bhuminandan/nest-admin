@@ -90,7 +90,6 @@ export class TransactionService implements ITransactionService {
   }
 
   async deleteTransaction(id: string, userId: string) {
-    // delete file based on filePath
     const transaction = await this.transactionRepository.findOne({
       where: { id, user: { id: userId } },
     });
@@ -100,6 +99,14 @@ export class TransactionService implements ITransactionService {
 
     this.deleteFile(transaction.filePath);
     await this.transactionRepository.remove(transaction);
+  }
+
+  async getFile(filePath: string) {
+    const fullPath = process.cwd() + '/uploads/' + filePath;
+    if (!fs.existsSync(fullPath)) {
+      throw new BadRequestException('File not found');
+    }
+    return fs.readFileSync(fullPath);
   }
 
   private deleteFile(filePath: string) {

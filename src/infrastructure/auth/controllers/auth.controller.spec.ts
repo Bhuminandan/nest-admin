@@ -3,9 +3,9 @@ import { AuthController } from './auth.controller';
 import { AuthService } from '../services/auth.service';
 import {
   RegisterAdminDto,
+  RegisterSupportUserDto,
   RegisterUserDto,
 } from '../../../application/dto/register.dto';
-import { RequestPasswordResetDto } from '../../../application/dto/request-password-reset.dto';
 import { ResetPasswordDto } from '../../../application/dto/reset-password.dto';
 import { Response } from 'express';
 import { HttpStatus } from '@nestjs/common';
@@ -35,8 +35,9 @@ describe('AuthController', () => {
     login: jest.fn(),
     registerUser: jest.fn(),
     registerAdmin: jest.fn(),
-    requestPasswordReset: jest.fn(),
     resetPassword: jest.fn(),
+    sentPassResetEmail: jest.fn(),
+    createSupportUser: jest.fn(),
   };
 
   const mockResponse = {
@@ -125,7 +126,11 @@ describe('AuthController', () => {
         registerUserDto,
       );
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.CREATED);
-      expect(mockResponse.json).toHaveBeenCalledWith(mockResult);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.CREATED,
+        message: 'User registered successfully',
+        data: mockResult,
+      });
     });
 
     it('should have JwtAuthGuard and RolesGuard', () => {
@@ -161,7 +166,11 @@ describe('AuthController', () => {
         registerAdminDto,
       );
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.CREATED);
-      expect(mockResponse.json).toHaveBeenCalledWith(mockResult);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.CREATED,
+        message: 'Admin registered successfully',
+        data: mockResult,
+      });
     });
 
     it('should have JwtAuthGuard and RolesGuard', () => {
@@ -199,8 +208,69 @@ describe('AuthController', () => {
       );
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.OK,
         message: 'Password reset successful',
       });
+    });
+  });
+
+  describe('passResetEmail', () => {
+    it('should send password reset email', async () => {
+      const email = 'user@example.com';
+      mockAuthService.sentPassResetEmail.mockResolvedValue(undefined);
+
+      await controller.passResetEmail(email, mockResponse);
+
+      expect(mockAuthService.sentPassResetEmail).toHaveBeenCalledWith(email);
+      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.OK,
+        message: 'Password reset email sent',
+      });
+    });
+  });
+
+  describe('createSupportUser', () => {
+    const registerSupportUserDto: RegisterSupportUserDto = {
+      email: 'support@example.com',
+      password: 'support123',
+    };
+
+    it('should create a support user', async () => {
+      const mockResult = { id: 'uuid', ...registerSupportUserDto };
+      mockAuthService.createSupportUser.mockResolvedValue(mockResult);
+
+      await controller.createSupportUser(mockResponse, registerSupportUserDto);
+
+      expect(mockAuthService.createSupportUser).toHaveBeenCalledWith(
+        registerSupportUserDto,
+      );
+      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.CREATED);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: HttpStatus.CREATED,
+        message: 'Support user created successfully',
+        data: mockResult,
+      });
+    });
+
+    it('should have JwtAuthGuard and RolesGuard', () => {
+      const metadata = Reflect.getMetadata(
+        '__guards__',
+        AuthController.prototype.createSupportUser,
+      );
+      expect(metadata).toEqual(expect.arrayContaining([expect.any(Function)]));
+    });
+
+    it('should require SUPER_ADMIN, ADMIN, or POWER_USER role', () => {
+      const rolesMetadata = Reflect.getMetadata(
+        'roles',
+        AuthController.prototype.createSupportUser,
+      );
+      expect(rolesMetadata).toEqual([
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN,
+        UserRole.POWER_USER,
+      ]);
     });
   });
 });

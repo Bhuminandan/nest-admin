@@ -85,6 +85,31 @@ export class TransactionController {
     };
   }
 
+  @Get('/getfile')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.USER, UserRole.POWER_USER, UserRole.SUPPORT_DESK)
+  @ApiOperation({ summary: 'Get a transaction file by file path' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'File found successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden',
+  })
+  async getFile(@Query('filePath') filePath: string) {
+    const file = await this.transactionService.getFile(filePath);
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'File found successfully',
+      data: file,
+    };
+  }
+
   @Get('/getAllTransactionsByUser')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.POWER_USER, UserRole.USER)

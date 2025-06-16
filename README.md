@@ -1,3 +1,138 @@
+# Transaction Management System
+
+A NestJS-based web admin application with role-based access control for managing users and transactions (including PDF file storage).
+
+## Features
+
+- **Role-Based Access Control** with 5 distinct roles:
+
+  - Super Admin (1 global superuser - auto-seeded on first run)
+  - Group Admin (per-group administrators)
+  - Power Users (can view all user data)
+  - Users (can create/manage their own transactions)
+  - Support Desk (read-only access to all transactions)
+
+- **Secure Authentication**:
+
+  - Token-based authentication (JWT)
+  - One-time password links for new users via email
+  - Password change enforcement on first login
+
+- **Transaction Management**:
+
+  - Create transactions with title, description
+  - PDF file storage capability
+  - User-specific transaction isolation
+
+- **Group Isolation**:
+
+  - Admins only see data from their assigned group
+  - Clean data separation between groups
+
+- **Developer Friendly**:
+  - Clean Architecture implementation
+  - Comprehensive unit tests
+  - Code coverage reporting
+  - Swagger/OpenAPI documentation
+  - Postman collection for easy API testing
+
+## Tech Stack
+
+- **Backend**: NestJS
+- **Database**: PostgreSQL (TypeORM)
+- **Authentication**: JWT
+- **API Documentation**: Swagger UI
+- **Testing**: Jest (unit tests)
+- **Email Service**: Nodemailer (configure your own SMTP)
+
+## Setup Instructions
+
+### Prerequisites
+
+- Node.js (v16 or later)
+- PostgreSQL (v12 or later)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/Bhuminandan/nest-admin
+   cd nest-admin
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+
+   ```bash
+   cp env.sample .env
+   ```
+
+   Edit the `.env` file with your own values
+
+4. Database setup:
+
+   ```bash
+   psql -U postgres -h localhost -p 5432 -d your_db_name -f admin_backup.sql
+   ```
+
+5. Start the application:
+   ```bash
+   npm run start:dev
+   ```
+
+### Automatic Super Admin Creation
+
+On first run, the system automatically seeds a Super Admin user with these credentials:
+
+- Email: `superadmin@example.com`
+- Password: `SuperAdmin123!` (change immediately after first login)
+
+## API Testing Options
+
+### 1. Swagger UI
+
+Access interactive API documentation at:  
+[http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+
+### 2. Postman Collection
+
+Import `NEST ADMIN.postman_collection.json` into Postman
+
+## Database Backup/Restore
+
+To restore from SQL backup:
+
+```bash
+psql -U postgres -h localhost -p 5432 -d your_db_name -f admin_backup.sql
+```
+
+## Role Permissions Overview
+
+| Role         | Create Users | Manage Groups | View All Data  | Create Transactions |
+| ------------ | ------------ | ------------- | -------------- | ------------------- |
+| Super Admin  | ✓            | ✓             | ✓              | ✗                   |
+| Group Admin  | ✓            | ✗             | ✗ (Group only) | ✗                   |
+| Power User   | ✗            | ✗             | ✓              | ✗                   |
+| User         | ✗            | ✗             | ✗              | ✓ (Own only)        |
+| Support Desk | ✗            | ✗             | ✓ (Read-only)  | ✗                   |
+
+## Important Notes
+
+1. Configure email service in `.env` to test user invitation flows
+2. Change Super Admin password immediately after first login
+3. Never commit your `.env` file
+   ``
+
+### NESTJS
+
+<!-- NEST JS -->
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>

@@ -7,11 +7,12 @@ import { AuthModule } from '../auth/auth.module';
 import { FileUploadService } from './services/file-upload.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transaction } from '@core/entities/transaction.entity';
+import { TransactionRepository } from '../database/repositories/transaction-repository';
 
 @Module({
   imports: [
-    AuthModule, 
-    TypeOrmModule.forFeature([Transaction]),
+    AuthModule,
+    TypeOrmModule.forFeature([Transaction, TransactionRepository]),
     MulterModule.register({
       storage: diskStorage({
         destination: './uploads',
@@ -23,7 +24,7 @@ import { Transaction } from '@core/entities/transaction.entity';
     }),
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, FileUploadService], 
+  providers: [TransactionService, FileUploadService],
   exports: [TransactionService],
 })
 export class TransactionModule {}

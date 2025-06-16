@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from '../services/auth.service';
-import { RegisterAdminDto, RegisterUserDto } from '../../../application/dto/register.dto';
+import {
+  RegisterAdminDto,
+  RegisterUserDto,
+} from '../../../application/dto/register.dto';
 import { RequestPasswordResetDto } from '../../../application/dto/request-password-reset.dto';
 import { ResetPasswordDto } from '../../../application/dto/reset-password.dto';
 import { Response } from 'express';
@@ -18,8 +21,8 @@ jest.mock('../../../core/enums/user-role.enum', () => ({
     ADMIN: 'ADMIN',
     SUPER_ADMIN: 'SUPER_ADMIN',
     POWER_USER: 'POWER_USER',
-    SUPPORT_DESK: 'SUPPORT_DESK'
-  }
+    SUPPORT_DESK: 'SUPPORT_DESK',
+  },
 }));
 
 import { UserRole } from '../../../core/enums/user-role.enum';
@@ -98,7 +101,10 @@ describe('AuthController', () => {
     });
 
     it('should use LocalAuthGuard', () => {
-      const metadata = Reflect.getMetadata('__guards__', AuthController.prototype.login);
+      const metadata = Reflect.getMetadata(
+        '__guards__',
+        AuthController.prototype.login,
+      );
       expect(metadata).toEqual(expect.arrayContaining([expect.any(Function)]));
     });
   });
@@ -115,18 +121,26 @@ describe('AuthController', () => {
 
       await controller.register(registerUserDto, mockResponse);
 
-      expect(mockAuthService.registerUser).toHaveBeenCalledWith(registerUserDto);
+      expect(mockAuthService.registerUser).toHaveBeenCalledWith(
+        registerUserDto,
+      );
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.CREATED);
       expect(mockResponse.json).toHaveBeenCalledWith(mockResult);
     });
 
     it('should have JwtAuthGuard and RolesGuard', () => {
-      const metadata = Reflect.getMetadata('__guards__', AuthController.prototype.register);
+      const metadata = Reflect.getMetadata(
+        '__guards__',
+        AuthController.prototype.register,
+      );
       expect(metadata).toEqual(expect.arrayContaining([expect.any(Function)]));
     });
 
     it('should require ADMIN role', () => {
-      const rolesMetadata = Reflect.getMetadata('roles', AuthController.prototype.register);
+      const rolesMetadata = Reflect.getMetadata(
+        'roles',
+        AuthController.prototype.register,
+      );
       expect(rolesMetadata).toEqual([UserRole.ADMIN]);
     });
   });
@@ -143,37 +157,27 @@ describe('AuthController', () => {
 
       await controller.registerAdmin(registerAdminDto, mockResponse);
 
-      expect(mockAuthService.registerAdmin).toHaveBeenCalledWith(registerAdminDto);
+      expect(mockAuthService.registerAdmin).toHaveBeenCalledWith(
+        registerAdminDto,
+      );
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.CREATED);
       expect(mockResponse.json).toHaveBeenCalledWith(mockResult);
     });
 
     it('should have JwtAuthGuard and RolesGuard', () => {
-      const metadata = Reflect.getMetadata('__guards__', AuthController.prototype.registerAdmin);
+      const metadata = Reflect.getMetadata(
+        '__guards__',
+        AuthController.prototype.registerAdmin,
+      );
       expect(metadata).toEqual(expect.arrayContaining([expect.any(Function)]));
     });
 
     it('should require SUPER_ADMIN role', () => {
-      const rolesMetadata = Reflect.getMetadata('roles', AuthController.prototype.registerAdmin);
+      const rolesMetadata = Reflect.getMetadata(
+        'roles',
+        AuthController.prototype.registerAdmin,
+      );
       expect(rolesMetadata).toEqual([UserRole.SUPER_ADMIN]);
-    });
-  });
-
-  describe('requestPasswordReset', () => {
-    const requestPasswordResetDto: RequestPasswordResetDto = {
-      email: 'user@example.com',
-    };
-
-    it('should request password reset', async () => {
-      mockAuthService.requestPasswordReset.mockResolvedValue(undefined);
-
-      await controller.requestPasswordReset(requestPasswordResetDto, mockResponse);
-
-      expect(mockAuthService.requestPasswordReset).toHaveBeenCalledWith(requestPasswordResetDto.email);
-      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        message: 'If an account exists, a password reset email has been sent',
-      });
     });
   });
 
@@ -197,20 +201,6 @@ describe('AuthController', () => {
       expect(mockResponse.json).toHaveBeenCalledWith({
         message: 'Password reset successful',
       });
-    });
-  });
-
-  describe('validateToken', () => {
-    it('should validate token', async () => {
-      await controller.validateToken(mockResponse);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(mockResponse.json).toHaveBeenCalledWith({ valid: true });
-    });
-
-    it('should have JwtAuthGuard', () => {
-      const metadata = Reflect.getMetadata('__guards__', AuthController.prototype.validateToken);
-      expect(metadata).toEqual(expect.arrayContaining([expect.any(Function)]));
     });
   });
 });

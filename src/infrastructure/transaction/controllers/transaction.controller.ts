@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
+  Patch,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -22,7 +25,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateTransactionDto } from 'src/application/dto/transaction.dto';
+import {
+  CreateTransactionDto,
+  UpdateTransactionDto,
+} from 'src/application/dto/transaction.dto';
 import { Express } from 'express';
 
 @ApiTags('Transaction')
@@ -69,13 +75,46 @@ export class TransactionController {
     const result = await this.transactionService.createTransaction(
       createTransactionDto,
       req.user.id,
-      file, 
+      file,
     );
 
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Transaction created successfully',
       data: result,
+    };
+  }
+
+  @Get('/getAllTransactionsByUser')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.POWER_USER, UserRole.USER)
+  @ApiOperation({ summary: 'Get all transactions by user (Power user only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Transactions found successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden',
+  })
+  async getAllTransactionsByUser(
+    @Req() req: any,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    const transactions = await this.transactionService.getAllTransactionsByUser(
+      req.user.id,
+      page,
+      limit,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Transactions found successfully',
+      data: transactions,
     };
   }
 
@@ -98,7 +137,7 @@ export class TransactionController {
   async getTransactionById(@Req() req: any) {
     const transaction = await this.transactionService.getTransactionById(
       req.params.id,
-      req.user.id
+      req.user.id,
     );
     return {
       statusCode: HttpStatus.OK,
@@ -109,7 +148,7 @@ export class TransactionController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.POWER_USER)
+  @Roles(UserRole.POWER_USER, UserRole.SUPPORT_DESK)
   @ApiOperation({ summary: 'Get all transactions (Power user only)' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -123,10 +162,15 @@ export class TransactionController {
     status: HttpStatus.FORBIDDEN,
     description: 'Forbidden',
   })
-  async getAllTransactions(@Req() req: any) {
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
-    const transactions = await this.transactionService.getAllTransactions(page, limit);
+  async getAllTransactions(
+    @Req() req: any,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    const transactions = await this.transactionService.getAllTransactions(
+      page,
+      limit,
+    );
     return {
       statusCode: HttpStatus.OK,
       message: 'Transactions found successfully',
@@ -134,13 +178,13 @@ export class TransactionController {
     };
   }
 
-  @Get('/user')
+  @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.USER, UserRole.POWER_USER)
-  @ApiOperation({ summary: 'Get all transactions for a user (User only)' })
+  @Roles(UserRole.USER)
+  @ApiOperation({ summary: 'Delete a transaction by id (User only)' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Transactions found successfully',
+    description: 'Transaction deleted successfully',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -150,15 +194,62 @@ export class TransactionController {
     status: HttpStatus.FORBIDDEN,
     description: 'Forbidden',
   })
-  async getUserTransactions(@Req() req: any) {
-    console.log('User ID: >>>> ', req.user.id);
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
-    const transactions = await this.transactionService.getUserTransactions(req.user.id, page, limit);
+  async deleteTransaction(@Req() req: any) {
+    await this.transactionService.deleteTransaction(req.params.id, req.user.id);
     return {
       statusCode: HttpStatus.OK,
-      message: 'Transactions found successfully',
-      data: transactions,
+      message: 'Transaction deleted successfully',
+    };
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Update a transaction by id (User only)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        description: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Transaction updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden',
+  })
+  async updateTransaction(
+    @Req() req: any,
+    @Query('id') id: string,
+    @Body() updateTransactionDto: UpdateTransactionDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.transactionService.updateTransaction(
+      id,
+      updateTransactionDto,
+      req.user.id,
+      file,
+    );
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      message: 'Transaction updated successfully',
+      data: result,
     };
   }
 }

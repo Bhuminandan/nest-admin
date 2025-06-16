@@ -4,7 +4,9 @@ import { UserRole } from 'src/core/enums/user-role.enum';
 import { User } from 'src/core/entities/user.entity';
 
 export async function seedSuperAdmin(userRepo: Repository<User>) {
-  const exists = await userRepo.findOne({ where: { role: UserRole.SUPER_ADMIN } });
+  const exists = await userRepo.findOne({
+    where: { role: UserRole.SUPER_ADMIN },
+  });
 
   if (!exists) {
     const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;

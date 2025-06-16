@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -9,7 +9,7 @@ export class CreateTransactionDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Title is empty' })
-  title: string
+  title: string;
 
   @ApiProperty({
     example: 'Test description',
@@ -18,14 +18,25 @@ export class CreateTransactionDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Description is empty' })
-  description: string
+  description: string;
+}
 
+export class UpdateTransactionDto {
   @ApiProperty({
-    example: 'path/to/file.pdf',
-    description: 'Path to file for transaction',
+    example: 'Test transaction',
+    description: 'Name for transaction',
     required: true,
   })
   @IsString()
-  @IsNotEmpty({ message: 'File path is empty' })
-  filePath: string
+  @IsNotEmpty({ message: 'Title is empty' })
+  title: string;
+
+  @ApiProperty({
+    example: 'Test description',
+    description: 'Description for transaction',
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty({ message: 'Description is empty' })
+  description: string;
 }

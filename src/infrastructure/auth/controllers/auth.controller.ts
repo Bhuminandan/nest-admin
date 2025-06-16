@@ -6,10 +6,15 @@ import {
   HttpStatus,
   UseGuards,
   Req,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../../../application/dto/login.dto';
-import { RegisterAdminDto, RegisterUserDto } from '../../../application/dto/register.dto';
+import {
+  RegisterAdminDto,
+  RegisterSupportUserDto,
+  RegisterUserDto,
+} from '../../../application/dto/register.dto';
 import { RequestPasswordResetDto } from '../../../application/dto/request-password-reset.dto';
 import { ResetPasswordDto } from '../../../application/dto/reset-password.dto';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
@@ -41,7 +46,10 @@ export class AuthController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Register new user (Admin only)' })
   @ApiBody({ type: RegisterUserDto })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'User registered successfully' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'User registered successfully',
+  })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
   async register(
@@ -50,7 +58,11 @@ export class AuthController {
   ) {
     try {
       const result = await this.authService.registerUser(registerUserDto);
-      return res.status(HttpStatus.CREATED).json(result);
+      return res.status(HttpStatus.CREATED).json({
+        statusCode: HttpStatus.CREATED,
+        message: 'User registered successfully',
+        data: result,
+      });
     } catch (error) {
       throw error;
     }
@@ -61,7 +73,10 @@ export class AuthController {
   @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Register new Admin (Super Admin only)' })
   @ApiBody({ type: RegisterAdminDto })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Admin registered successfully' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Admin registered successfully',
+  })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
   async registerAdmin(
@@ -70,27 +85,14 @@ export class AuthController {
   ) {
     try {
       const result = await this.authService.registerAdmin(registerAdminDto);
-      return res.status(HttpStatus.CREATED).json(result);
+      return res.status(HttpStatus.CREATED).json({
+        statusCode: HttpStatus.CREATED,
+        message: 'Admin registered successfully',
+        data: result,
+      });
     } catch (error) {
       throw error;
     }
-  }
-
-  @Post('request-password-reset')
-  @ApiOperation({ summary: 'Request password reset' })
-  @ApiBody({ type: RequestPasswordResetDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Reset email sent if account exists',
-  })
-  async requestPasswordReset(
-    @Body() requestPasswordResetDto: RequestPasswordResetDto,
-    @Res() res: Response,
-  ) {
-    await this.authService.requestPasswordReset(requestPasswordResetDto.email);
-    return res.status(HttpStatus.OK).json({
-      message: 'If an account exists, a password reset email has been sent',
-    });
   }
 
   @Post('reset-password')
@@ -106,17 +108,47 @@ export class AuthController {
       resetPasswordDto.token,
       resetPasswordDto.newPassword,
     );
-    return res
-      .status(HttpStatus.OK)
-      .json({ message: 'Password reset successful' });
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'Password reset successful',
+    });
   }
 
-  @Post('validate-token')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Validate JWT token' })
-  @ApiResponse({ status: 200, description: 'Token is valid' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async validateToken(@Res() res: Response) {
-    return res.status(HttpStatus.OK).json({ valid: true });
+  @Post('pass-reset-email/:email')
+  @ApiOperation({ summary: 'Send password reset email' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset email sent',
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async passResetEmail(@Param('email') email: string, @Res() res: Response) {
+    await this.authService.sentPassResetEmail(email);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'Password reset email sent',
+    });
+  }
+
+  @Post('support-desk')
+  @ApiOperation({ summary: 'Create support user' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.POWER_USER)
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Support user created successfully',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  async createSupportUser(
+    @Res() res: Response,
+    @Body() registerSupportUserDto: RegisterSupportUserDto,
+  ) {
+    const result = await this.authService.createSupportUser(
+      registerSupportUserDto,
+    );
+    return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: 'Support user created successfully',
+      data: result,
+    });
   }
 }

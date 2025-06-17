@@ -2,6 +2,10 @@
 
 A NestJS-based web admin application with role-based access control for managing users and transactions (including PDF file storage).
 
+## ER DIAGRAM
+
+![alt text](image.png)
+
 ## Features
 
 - **Role-Based Access Control** with 5 distinct roles:

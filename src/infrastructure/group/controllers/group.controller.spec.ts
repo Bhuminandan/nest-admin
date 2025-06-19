@@ -7,6 +7,7 @@ import { CreateGroupDto } from 'src/application/dto/group.dto';
 import { UserRole } from '@core/enums/user-role.enum';
 import { Response } from 'express';
 import { HttpStatus } from '@nestjs/common';
+import { ROLES_KEY } from 'src/infrastructure/auth/decorators/roles.decorator';
 
 describe('GroupController', () => {
   let controller: GroupController;
@@ -135,7 +136,7 @@ describe('GroupController', () => {
 
     it('should have SUPER_ADMIN role required for createGroup', () => {
       const roles = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         GroupController.prototype.createGroup,
       );
       expect(roles).toEqual([UserRole.SUPER_ADMIN]);
@@ -153,7 +154,7 @@ describe('GroupController', () => {
 
     it('should have ADMIN role required for getGroupById', () => {
       const roles = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         GroupController.prototype.getGroupById,
       );
       expect(roles).toEqual([UserRole.ADMIN]);

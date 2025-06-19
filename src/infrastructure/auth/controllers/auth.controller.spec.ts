@@ -15,17 +15,8 @@ import { ConfigService } from '@nestjs/config';
 import { EmailService } from '../services/email.service';
 import { User } from '../../../core/entities/user.entity';
 
-jest.mock('../../../core/enums/user-role.enum', () => ({
-  UserRole: {
-    USER: 'USER',
-    ADMIN: 'ADMIN',
-    SUPER_ADMIN: 'SUPER_ADMIN',
-    POWER_USER: 'POWER_USER',
-    SUPPORT_DESK: 'SUPPORT_DESK',
-  },
-}));
-
 import { UserRole } from '../../../core/enums/user-role.enum';
+import { ROLES_KEY } from '../decorators/roles.decorator';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -147,7 +138,7 @@ describe('AuthController', () => {
 
     it('should require ADMIN role', () => {
       const rolesMetadata = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         AuthController.prototype.register,
       );
       expect(rolesMetadata).toEqual([UserRole.ADMIN]);
@@ -187,7 +178,7 @@ describe('AuthController', () => {
 
     it('should require SUPER_ADMIN role', () => {
       const rolesMetadata = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         AuthController.prototype.registerAdmin,
       );
       expect(rolesMetadata).toEqual([UserRole.SUPER_ADMIN]);
@@ -267,7 +258,7 @@ describe('AuthController', () => {
 
     it('should require SUPER_ADMIN, ADMIN, or POWER_USER role', () => {
       const rolesMetadata = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         AuthController.prototype.createSupportUser,
       );
       expect(rolesMetadata).toEqual([

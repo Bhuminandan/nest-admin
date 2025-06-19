@@ -102,6 +102,45 @@ describe('TransactionController', () => {
     });
   });
 
+  describe('getFile', () => {
+    it('should get a transaction file', async () => {
+      const fileName = 'test-file.txt';
+      const mockFileContent = 'file-content';
+      mockTransactionService.getFile.mockResolvedValue(mockFileContent);
+
+      const result = await controller.getFile(fileName);
+
+      expect(transactionService.getFile).toHaveBeenCalledWith(fileName);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'File found successfully',
+        data: mockFileContent,
+      });
+    });
+
+    it('should have JwtAuthGuard and RolesGuard', () => {
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        TransactionController.prototype.getFile,
+      );
+      expect(guards).toHaveLength(2);
+      expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
+      expect(new guards[1]()).toBeInstanceOf(RolesGuard);
+    });
+
+    it('should allow USER, POWER_USER and SUPPORT_DESK roles', () => {
+      const roles = Reflect.getMetadata(
+        ROLES_KEY,
+        TransactionController.prototype.getFile,
+      );
+      expect(roles).toEqual([
+        UserRole.USER,
+        UserRole.POWER_USER,
+        UserRole.SUPPORT_DESK,
+      ]);
+    });
+  });
+
   describe('getAllTransactionsByUser', () => {
     it('should get all transactions for user', async () => {
       const mockTransactions = [{ id: '1' }, { id: '2' }];
@@ -137,64 +176,17 @@ describe('TransactionController', () => {
       expect(new guards[1]()).toBeInstanceOf(RolesGuard);
     });
 
-    it('should require POWER_USER or USER role', () => {
+    it('should require USER role', () => {
       const roles = Reflect.getMetadata(
         ROLES_KEY,
         TransactionController.prototype.getAllTransactionsByUser,
       );
-      expect(roles).toEqual([
-        UserRole.POWER_USER,
-        UserRole.USER,
-        UserRole.POWER_USER,
-      ]);
-    });
-  });
-
-  describe('getTransactionById', () => {
-    it('should get a transaction by id', async () => {
-      const mockTransaction = { id: 'transaction-id' };
-      mockTransactionService.getTransactionById.mockResolvedValue(
-        mockTransaction,
-      );
-
-      const result = await controller.getTransactionById(mockRequest);
-
-      expect(transactionService.getTransactionById).toHaveBeenCalledWith(
-        mockRequest.params.id,
-        mockRequest.user.id,
-      );
-      expect(result).toEqual({
-        statusCode: HttpStatus.OK,
-        message: 'Transaction found successfully',
-        data: mockTransaction,
-      });
-    });
-
-    it('should have JwtAuthGuard and RolesGuard', () => {
-      const guards = Reflect.getMetadata(
-        '__guards__',
-        TransactionController.prototype.getTransactionById,
-      );
-      expect(guards).toHaveLength(2);
-      expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
-      expect(new guards[1]()).toBeInstanceOf(RolesGuard);
-    });
-
-    it('should require USER role', () => {
-      const roles = Reflect.getMetadata(
-        ROLES_KEY,
-        TransactionController.prototype.getTransactionById,
-      );
-      expect(roles).toEqual([
-        UserRole.USER,
-        UserRole.POWER_USER,
-        UserRole.SUPPORT_DESK,
-      ]);
+      expect(roles).toEqual([UserRole.USER]);
     });
   });
 
   describe('getAllTransactions', () => {
-    it('should get all transactions (for admin)', async () => {
+    it('should get all transactions (for power user and support desk)', async () => {
       const mockTransactions = [{ id: '1' }, { id: '2' }];
       mockTransactionService.getAllTransactions.mockResolvedValue(
         mockTransactions,
@@ -224,6 +216,44 @@ describe('TransactionController', () => {
       const roles = Reflect.getMetadata(
         ROLES_KEY,
         TransactionController.prototype.getAllTransactions,
+      );
+      expect(roles).toEqual([UserRole.POWER_USER, UserRole.SUPPORT_DESK]);
+    });
+  });
+
+  describe('getTransactionById', () => {
+    it('should get a transaction by id', async () => {
+      const mockTransaction = { id: 'transaction-id' };
+      mockTransactionService.getTransactionById.mockResolvedValue(
+        mockTransaction,
+      );
+
+      const result = await controller.getTransactionById(mockRequest);
+
+      expect(transactionService.getTransactionById).toHaveBeenCalledWith(
+        mockRequest.params.id,
+      );
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Transaction found successfully',
+        data: mockTransaction,
+      });
+    });
+
+    it('should have JwtAuthGuard and RolesGuard', () => {
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        TransactionController.prototype.getTransactionById,
+      );
+      expect(guards).toHaveLength(2);
+      expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
+      expect(new guards[1]()).toBeInstanceOf(RolesGuard);
+    });
+
+    it('should require POWER_USER or SUPPORT_DESK role', () => {
+      const roles = Reflect.getMetadata(
+        ROLES_KEY,
+        TransactionController.prototype.getTransactionById,
       );
       expect(roles).toEqual([UserRole.POWER_USER, UserRole.SUPPORT_DESK]);
     });
@@ -310,19 +340,6 @@ describe('TransactionController', () => {
         TransactionController.prototype.updateTransaction,
       );
       expect(roles).toEqual([UserRole.USER]);
-    });
-  });
-
-  describe('getfile', () => {
-    it('should get a transaction file', async () => {
-      const filePath = 'test-file.txt';
-      mockTransactionService.getFile.mockResolvedValue('file-content');
-      const result = await controller.getFile(filePath);
-      expect(result).toEqual({
-        statusCode: HttpStatus.OK,
-        message: 'File found successfully',
-        data: 'file-content',
-      });
     });
   });
 });

@@ -112,7 +112,7 @@ export class TransactionController {
 
   @Get('/getAllTransactionsByUser')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.POWER_USER, UserRole.USER, UserRole.POWER_USER)
+  @Roles(UserRole.USER)
   @ApiOperation({ summary: 'Get all transactions by user' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -179,7 +179,7 @@ export class TransactionController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.USER, UserRole.POWER_USER, UserRole.SUPPORT_DESK)
+  @Roles(UserRole.POWER_USER, UserRole.SUPPORT_DESK)
   @ApiOperation({ summary: 'Get a transaction by id' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -196,7 +196,6 @@ export class TransactionController {
   async getTransactionById(@Req() req: any) {
     const transaction = await this.transactionService.getTransactionById(
       req.params.id,
-      req.user.id,
     );
     return {
       statusCode: HttpStatus.OK,

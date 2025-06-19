@@ -52,6 +52,7 @@ describe('GroupController', () => {
       const createGroupDto: CreateGroupDto = {
         name: 'Test Group',
         adminId: '1',
+        members: ['1', '2'],
       };
 
       const expectedResult = { id: '1', ...createGroupDto };
@@ -72,6 +73,7 @@ describe('GroupController', () => {
       const createGroupDto: CreateGroupDto = {
         name: 'Test Group',
         adminId: '1',
+        members: ['1', '2'],
       };
 
       const error = new Error('Service error');

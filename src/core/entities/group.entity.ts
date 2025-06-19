@@ -20,7 +20,7 @@ export class Group {
   users: User[];
 
   @Column({ nullable: true })
-  adminId: string; // ID of the admin user for this group
+  adminId: string;
 
   @CreateDateColumn()
   createdAt: Date;

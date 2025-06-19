@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   CreateTransactionDto,
   UpdateTransactionDto,
@@ -52,7 +56,12 @@ export class TransactionService implements ITransactionService {
     userId: string,
     file: Express.Multer.File,
   ) {
-    const transaction = await this.getTransactionById(id, userId);
+    const transaction = await this.transactionRepository.findOne({
+      where: { id, user: { id: userId } },
+    });
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
+    }
     transaction.title = updateTransactionDto.title;
     transaction.description = updateTransactionDto.description;
     if (file) {
@@ -62,9 +71,9 @@ export class TransactionService implements ITransactionService {
     return this.transactionRepository.save(transaction);
   }
 
-  async getTransactionById(id: string, userId: string): Promise<Transaction> {
+  async getTransactionById(id: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOne({
-      where: { id, user: { id: userId } },
+      where: { id },
     });
     if (!transaction) {
       throw new BadRequestException('Transaction not found');

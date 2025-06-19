@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { GroupService } from './group.service';
-import { AuthService } from 'src/infrastructure/auth/services/auth.service';
 import { CreateGroupDto } from 'src/application/dto/group.dto';
 import { UserRole } from '@core/enums/user-role.enum';
-import { UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { Group } from '@core/entities/group.entity';
+import { User } from '@core/entities/user.entity';
+import { In } from 'typeorm';
 
 describe('GroupService', () => {
   let service: GroupService;
-  let authService: AuthService;
 
   const mockGroupRepository = {
     create: jest.fn(),
@@ -17,8 +17,9 @@ describe('GroupService', () => {
     findOne: jest.fn(),
   };
 
-  const mockAuthService = {
-    findById: jest.fn(),
+  const mockUserRepository = {
+    find: jest.fn(),
+    findOne: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -30,14 +31,13 @@ describe('GroupService', () => {
           useValue: mockGroupRepository,
         },
         {
-          provide: AuthService,
-          useValue: mockAuthService,
+          provide: getRepositoryToken(User),
+          useValue: mockUserRepository,
         },
       ],
     }).compile();
 
     service = module.get<GroupService>(GroupService);
-    authService = module.get<AuthService>(AuthService);
   });
 
   afterEach(() => {
@@ -45,32 +45,54 @@ describe('GroupService', () => {
   });
 
   describe('createGroup', () => {
-    it('should successfully create a group when admin exists', async () => {
+    it('should successfully create a group when admin and members exist', async () => {
       const createGroupDto: CreateGroupDto = {
         name: 'Test Group',
         adminId: 'admin1',
+        members: ['member1', 'member2'],
       };
 
       const mockAdmin = { id: 'admin1', role: UserRole.ADMIN };
+      const mockMembers = [{ id: 'member1' }, { id: 'member2' }];
       const mockGroup = {
         id: 'group1',
         name: 'Test Group',
         adminId: 'admin1',
+        users: mockMembers,
       };
 
-      mockAuthService.findById.mockResolvedValue(mockAdmin);
+      // Mock admin check
+      mockUserRepository.findOne.mockResolvedValue(mockAdmin);
+      // Mock members check
+      mockUserRepository.find.mockResolvedValue(mockMembers);
+      // Mock group creation
       mockGroupRepository.create.mockReturnValue(mockGroup);
       mockGroupRepository.save.mockResolvedValue(mockGroup);
 
       const result = await service.createGroup(createGroupDto);
 
-      expect(authService.findById).toHaveBeenCalledWith({
-        where: { id: 'admin1', role: UserRole.ADMIN },
+      // Verify admin check
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: {
+          id: 'admin1',
+          role: UserRole.ADMIN,
+        },
       });
+
+      // Verify members check
+      expect(mockUserRepository.find).toHaveBeenCalledWith({
+        where: {
+          id: In(['member1', 'member2']),
+        },
+      });
+
+      // Verify group creation
       expect(mockGroupRepository.create).toHaveBeenCalledWith({
         name: 'Test Group',
+        users: mockMembers,
         adminId: 'admin1',
       });
+
       expect(mockGroupRepository.save).toHaveBeenCalledWith(mockGroup);
       expect(result).toEqual(mockGroup);
     });
@@ -79,9 +101,10 @@ describe('GroupService', () => {
       const createGroupDto: CreateGroupDto = {
         name: 'Test Group',
         adminId: 'invalid-admin',
+        members: ['member1', 'member2'],
       };
 
-      mockAuthService.findById.mockResolvedValue(null);
+      mockUserRepository.findOne.mockResolvedValue(null);
 
       await expect(service.createGroup(createGroupDto)).rejects.toThrow(
         new UnauthorizedException(
@@ -90,19 +113,40 @@ describe('GroupService', () => {
       );
     });
 
+    it('should throw UnauthorizedException when members do not exist', async () => {
+      const createGroupDto: CreateGroupDto = {
+        name: 'Test Group',
+        adminId: 'admin1',
+        members: ['member1', 'invalid-member'],
+      };
+
+      const mockAdmin = { id: 'admin1', role: UserRole.ADMIN };
+      const mockMembers = [{ id: 'member1' }]; // Only one member exists
+
+      mockUserRepository.findOne.mockResolvedValue(mockAdmin);
+      mockUserRepository.find.mockResolvedValue(mockMembers);
+
+      await expect(service.createGroup(createGroupDto)).rejects.toThrow(
+        new UnauthorizedException(
+          `User with id ${createGroupDto.members}, dosen't exist`,
+        ),
+      );
+    });
+
     it('should throw error when repository fails', async () => {
       const createGroupDto: CreateGroupDto = {
         name: 'Test Group',
         adminId: 'admin1',
+        members: ['member1', 'member2'],
       };
 
       const mockAdmin = { id: 'admin1', role: UserRole.ADMIN };
+      const mockMembers = [{ id: 'member1' }, { id: 'member2' }];
       const error = new Error('Database error');
 
-      mockAuthService.findById.mockResolvedValue(mockAdmin);
-      mockGroupRepository.create.mockImplementation(() => {
-        throw error;
-      });
+      mockUserRepository.findOne.mockResolvedValue(mockAdmin);
+      mockUserRepository.find.mockResolvedValue(mockMembers);
+      mockGroupRepository.save.mockRejectedValue(error);
 
       await expect(service.createGroup(createGroupDto)).rejects.toThrow(error);
     });
@@ -116,6 +160,7 @@ describe('GroupService', () => {
         id: 'group1',
         name: 'Test Group',
         adminId: 'admin1',
+        users: [],
       };
 
       mockGroupRepository.findOne.mockResolvedValue(mockGroup);
@@ -128,15 +173,15 @@ describe('GroupService', () => {
       expect(result).toEqual(mockGroup);
     });
 
-    it('should return null when group not found', async () => {
+    it('should throw NotFoundException when group not found', async () => {
       const groupId = 'non-existent';
       const adminId = 'admin1';
 
       mockGroupRepository.findOne.mockResolvedValue(null);
 
-      const result = await service.getGroupById(groupId, adminId);
-
-      expect(result).toBeNull();
+      await expect(service.getGroupById(groupId, adminId)).rejects.toThrow(
+        new NotFoundException(`Group with id ${groupId}, dosen't exist`),
+      );
     });
 
     it('should throw error when repository fails', async () => {
@@ -146,7 +191,9 @@ describe('GroupService', () => {
 
       mockGroupRepository.findOne.mockRejectedValue(error);
 
-      await expect(service.getGroupById(groupId, adminId)).rejects.toThrow(error);
+      await expect(service.getGroupById(groupId, adminId)).rejects.toThrow(
+        error,
+      );
     });
   });
 });

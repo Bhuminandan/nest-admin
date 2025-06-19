@@ -9,17 +9,7 @@ import {
   UpdateTransactionDto,
 } from '../../../application/dto/transaction.dto';
 import { HttpStatus } from '@nestjs/common';
-import { get } from 'http';
-
-jest.mock('@core/enums/user-role.enum', () => ({
-  UserRole: {
-    USER: 'USER',
-    ADMIN: 'ADMIN',
-    SUPER_ADMIN: 'SUPER_ADMIN',
-    POWER_USER: 'POWER_USER',
-    SUPPORT_DESK: 'SUPPORT_DESK',
-  },
-}));
+import { ROLES_KEY } from 'src/infrastructure/auth/decorators/roles.decorator';
 
 describe('TransactionController', () => {
   let controller: TransactionController;
@@ -105,7 +95,7 @@ describe('TransactionController', () => {
 
     it('should require USER role', () => {
       const roles = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         TransactionController.prototype.createTransaction,
       );
       expect(roles).toEqual([UserRole.USER]);
@@ -149,7 +139,7 @@ describe('TransactionController', () => {
 
     it('should require POWER_USER or USER role', () => {
       const roles = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         TransactionController.prototype.getAllTransactionsByUser,
       );
       expect(roles).toEqual([
@@ -192,7 +182,7 @@ describe('TransactionController', () => {
 
     it('should require USER role', () => {
       const roles = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         TransactionController.prototype.getTransactionById,
       );
       expect(roles).toEqual([
@@ -232,7 +222,7 @@ describe('TransactionController', () => {
 
     it('should require POWER_USER or SUPPORT_DESK role', () => {
       const roles = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         TransactionController.prototype.getAllTransactions,
       );
       expect(roles).toEqual([UserRole.POWER_USER, UserRole.SUPPORT_DESK]);
@@ -267,7 +257,7 @@ describe('TransactionController', () => {
 
     it('should require USER role', () => {
       const roles = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         TransactionController.prototype.deleteTransaction,
       );
       expect(roles).toEqual([UserRole.USER]);
@@ -316,7 +306,7 @@ describe('TransactionController', () => {
 
     it('should require USER role', () => {
       const roles = Reflect.getMetadata(
-        'roles',
+        ROLES_KEY,
         TransactionController.prototype.updateTransaction,
       );
       expect(roles).toEqual([UserRole.USER]);
